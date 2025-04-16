@@ -1,0 +1,15 @@
+***********For the setup of sqlite3*******
+
+sudo apt update
+sudo apt install sqlite3
+
+*********Open the Database File *********
+sqlitebrowser
+
+=> Open/Create a Database: Use "Open Database" to open an existing .db file or "New Database" to create a new one.
+
+=> Create Tables: Go to the "Database Structure" tab and click "Create Table" to define your table's columns.
+
+=> Add/Edit Data: Use the "Browse Data" tab to manually add/edit data or the "Execute SQL" tab to run SQL commands (e.g., INSERT, SELECT).
+
+=> Save and Close: Click "Write Changes" to save data, and use "File" > "Close Database" when you're done
