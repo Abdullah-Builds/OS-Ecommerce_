@@ -1,31 +1,31 @@
 # Compiler and flags
 CXX = g++
-CXXFLAGS = -std=c++20 -Wall
+CXXFLAGS = -std=c++20 -Wall -Isrc -Iinclude
 
-# Source files
-SRC = auth.cpp menu.cpp Inventory.cpp dining_philosophy.cpp loader.cpp main.cpp
+# Source and object files
+SRC_DIR = src
+INC_DIR = include
 
-# Object files
+SRC = $(wildcard $(SRC_DIR)/*.cpp)
 OBJ = $(SRC:.cpp=.o)
 
-# Target executable name (not a .cpp file!)
+# Output binary
 TARGET = app
 
 # Libraries
 LIBS = -lsqlite3 -pthread
 
-# Default build target
+# Default target
 all: $(TARGET)
 
-# Link object files to make final binary
+# Linking
 $(TARGET): $(OBJ)
 	$(CXX) $(OBJ) -o $(TARGET) $(LIBS)
 
-# Rule to compile .cpp to .o
-%.o: %.cpp
+# Compile rule: .cpp -> .o
+$(SRC_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# Clean up
+# Clean build
 clean:
 	rm -f $(OBJ) $(TARGET)
-
