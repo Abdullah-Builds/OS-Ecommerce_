@@ -8,7 +8,7 @@ bool Authenticate_User(const std::string& name) {
     sqlite3* db;
     sqlite3_stmt* stmt;
 
-    int rc = sqlite3_open("users.db", &db);
+    int rc = sqlite3_open("./database/users.db", &db);
     if (rc != SQLITE_OK) {
         cerr << "Unable to Open" << sqlite3_errmsg(db) << endl;
         return false;
