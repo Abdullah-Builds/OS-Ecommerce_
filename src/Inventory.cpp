@@ -6,7 +6,7 @@
 
 sqlite3* OpenDatabase() {
     sqlite3* db;
-    int rc = sqlite3_open("inventory.db", &db);
+    int rc = sqlite3_open("./database/inventory.db", &db);
     if (rc) {
         cerr << "Unable to Open " << sqlite3_errmsg(db) << endl;
         return nullptr;
