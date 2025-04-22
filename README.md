@@ -66,6 +66,24 @@ OS-Ecommerce/
    ```bash
    ./app
    ```
+## SQLite3 Setup
+ ```bash
+    sudo apt update
+    sudo apt install sqlite3
+  ```
+## GUI Tool: DB Browser for SQLite
+```bash
+   sqlitebrowser
+   ```
+Open/Create a Database : Use “Open Database” to open an existing .db file
+
+Create Tables : Go to the "Database Structure" tab and click “Create Table” to define the schema
+
+Add/Edit Data : Use the “Browse Data” tab or the “Execute SQL” tab to insert/edit records
+
+Save and Close : Click “Write Changes” to save your work
+
+Go to File > Close Database to exit
 
 ## Usage
 
