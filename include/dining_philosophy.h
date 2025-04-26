@@ -13,20 +13,21 @@ using namespace std;
 
 const int NUM_PHILOSOPHERS = 10;
 
-extern pthread_mutex_t cout_mutex;
-extern pthread_mutex_t cin_mutex;
-extern pthread_mutex_t cv_mutex;
-
-extern pthread_cond_t cv;
-
 extern binary_semaphore forks[NUM_PHILOSOPHERS];
+extern atomic<int> active_users;
 extern atomic<bool> philosopher_active[NUM_PHILOSOPHERS];
+extern mutex cout_mutex;
+extern mutex cin_mutex;
 
-extern int current_philosopher;
+
+extern condition_variable cv;
+extern int current_philosopher; 
 
 void think(int id);
 void eat(int id);
 void* philosopher(void* arg);
+
+
 void menu_and_wait(int id);
 
-#endif
+#endif 
