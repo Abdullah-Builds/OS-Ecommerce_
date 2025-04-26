@@ -14,8 +14,10 @@ binary_semaphore forks[NUM_PHILOSOPHERS] = {
     binary_semaphore(1)
 };
 
+atomic<int> active_users(NUM_PHILOSOPHERS);
 atomic<bool> philosopher_active[NUM_PHILOSOPHERS];
 
+// Replacing std::mutex and condition_variable
 pthread_mutex_t cout_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t cin_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t cv_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -27,11 +29,11 @@ random_device rd;
 mt19937 gen(rd());
 uniform_int_distribution<> dist(1, 3);
 
-void think() {
+void think(int id) {
     this_thread::sleep_for(chrono::seconds(dist(gen)));
 }
 
-void eat() {
+void eat(int id) {
     this_thread::sleep_for(chrono::seconds(dist(gen)));
 }
 
@@ -39,7 +41,7 @@ void menu_and_wait(int id) {
     int turn;
 
     pthread_mutex_lock(&cin_mutex);
-    cout << "\nPhilosopher " << id << ", do you want to exit for next time? (-1 to exit, any other number to continue): ";
+    cout << "\nPhilosopher " << id << ", do you want to exit? (-1 to exit, any other number to continue): ";
     cin >> turn;
     pthread_mutex_unlock(&cin_mutex);
 
@@ -60,6 +62,7 @@ void* philosopher(void* arg) {
     int right = (id + 1) % NUM_PHILOSOPHERS;
 
     while (philosopher_active[id]) {
+        // Wait for turn using pthreads
         pthread_mutex_lock(&cv_mutex);
         while (current_philosopher != id) {
             pthread_cond_wait(&cv, &cv_mutex);
@@ -77,7 +80,7 @@ void* philosopher(void* arg) {
         cout << "Philosopher " << id << " is thinking." << endl;
         pthread_mutex_unlock(&cout_mutex);
 
-        think();
+        think(id);
 
         if (id % 2 == 0) {
             forks[left].acquire();
@@ -91,7 +94,7 @@ void* philosopher(void* arg) {
         cout << "Philosopher " << id << " is eating." << endl;
         pthread_mutex_unlock(&cout_mutex);
 
-        eat();
+        eat(id);
 
         forks[left].release();
         forks[right].release();
@@ -101,5 +104,6 @@ void* philosopher(void* arg) {
     cout << "Philosopher " << id << " has exited." << endl;
     pthread_mutex_unlock(&cout_mutex);
 
+    --active_users;
     return nullptr;
 }
