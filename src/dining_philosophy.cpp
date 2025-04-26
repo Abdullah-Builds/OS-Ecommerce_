@@ -37,7 +37,7 @@ void menu_and_wait(int id) {
     int turn;
     {
         lock_guard<mutex> input_lock(cin_mutex);
-        cout << "\nPhilosopher " << id << ",  ( any other number to continue): ";
+        cout << "\nPhilosopher " << id << ",  ( any number to continue): ";
         cin >> turn;
     }
 
