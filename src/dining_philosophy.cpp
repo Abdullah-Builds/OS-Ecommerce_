@@ -13,7 +13,7 @@ binary_semaphore forks[NUM_PHILOSOPHERS] = {
     binary_semaphore(1)
 };
 
-atomic<int> active_users(NUM_PHILOSOPHERS);
+
 atomic<bool> philosopher_active[NUM_PHILOSOPHERS];
 mutex cout_mutex;
 mutex cin_mutex;
@@ -25,11 +25,11 @@ random_device rd;
 mt19937 gen(rd());
 uniform_int_distribution<> dist(1, 3);
 
-void think(int id) {
+void think() {
     this_thread::sleep_for(chrono::seconds(dist(gen)));
 }
 
-void eat(int id) {
+void eat() {
     this_thread::sleep_for(chrono::seconds(dist(gen)));
 }
 
@@ -37,12 +37,8 @@ void menu_and_wait(int id) {
     int turn;
     {
         lock_guard<mutex> input_lock(cin_mutex);
-        cout << "\nPhilosopher " << id << ", do you want to exit? (-1 to exit, any other number to continue): ";
+        cout << "\nPhilosopher " << id << ",  ( any other number to continue): ";
         cin >> turn;
-    }
-
-    if (turn == -1) {
-        philosopher_active[id] = false;
     }
 
     menu();
@@ -78,7 +74,7 @@ void* philosopher(void* arg) {
             cout << "Philosopher " << id << " is thinking." << endl;
         }
 
-        think(id);
+        think();
 
        
         if (id % 2 == 0) {
@@ -94,7 +90,7 @@ void* philosopher(void* arg) {
             cout << "Philosopher " << id << " is eating." << endl;
         }
 
-        eat(id); 
+        eat(); 
 
         forks[left].release();
         forks[right].release();
@@ -105,6 +101,6 @@ void* philosopher(void* arg) {
         cout << "Philosopher " << id << " has exited." << endl;
     }
 
-    --active_users;
+    
     return nullptr;
 }
