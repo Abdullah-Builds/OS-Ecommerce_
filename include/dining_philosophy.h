@@ -14,7 +14,6 @@ using namespace std;
 const int NUM_PHILOSOPHERS = 10;
 
 extern binary_semaphore forks[NUM_PHILOSOPHERS];
-extern atomic<int> active_users;
 extern atomic<bool> philosopher_active[NUM_PHILOSOPHERS];
 extern mutex cout_mutex;
 extern mutex cin_mutex;
