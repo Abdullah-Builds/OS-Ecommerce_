@@ -2,7 +2,6 @@
 #include <random>
 #include <chrono>
 #include <thread>
-#include <pthread.h>
 #include "menu.h"
 
 using namespace std;
@@ -16,13 +15,10 @@ binary_semaphore forks[NUM_PHILOSOPHERS] = {
 
 atomic<int> active_users(NUM_PHILOSOPHERS);
 atomic<bool> philosopher_active[NUM_PHILOSOPHERS];
+mutex cout_mutex;
+mutex cin_mutex;
 
-// Replacing std::mutex and condition_variable
-pthread_mutex_t cout_mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t cin_mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t cv_mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t cv = PTHREAD_COND_INITIALIZER;
-
+condition_variable cv;
 int current_philosopher = 0;
 
 random_device rd;
@@ -39,21 +35,22 @@ void eat(int id) {
 
 void menu_and_wait(int id) {
     int turn;
-
-    pthread_mutex_lock(&cin_mutex);
-    cout << "\nPhilosopher " << id << ", do you want to exit? (-1 to exit, any other number to continue): ";
-    cin >> turn;
-    pthread_mutex_unlock(&cin_mutex);
+    {
+        lock_guard<mutex> input_lock(cin_mutex);
+        cout << "\nPhilosopher " << id << ", do you want to exit? (-1 to exit, any other number to continue): ";
+        cin >> turn;
+    }
 
     if (turn == -1) {
         philosopher_active[id] = false;
     }
 
     menu();
-
-    pthread_mutex_lock(&cout_mutex);
-    cout << "Menu interaction completed for Philosopher " << id << endl;
-    pthread_mutex_unlock(&cout_mutex);
+    
+    {
+        lock_guard<mutex> lock(cout_mutex);
+        cout << "Menu interaction completed for Philosopher " << id << endl;
+    }
 }
 
 void* philosopher(void* arg) {
@@ -62,26 +59,28 @@ void* philosopher(void* arg) {
     int right = (id + 1) % NUM_PHILOSOPHERS;
 
     while (philosopher_active[id]) {
-        // Wait for turn using pthreads
-        pthread_mutex_lock(&cv_mutex);
-        while (current_philosopher != id) {
-            pthread_cond_wait(&cv, &cv_mutex);
+       
+        {
+            unique_lock<mutex> ul(cout_mutex);
+            cv.wait(ul, [id] { return current_philosopher == id; });
         }
-        pthread_mutex_unlock(&cv_mutex);
 
         menu_and_wait(id);
 
-        pthread_mutex_lock(&cv_mutex);
-        current_philosopher = (current_philosopher + 1) % NUM_PHILOSOPHERS;
-        pthread_cond_broadcast(&cv);
-        pthread_mutex_unlock(&cv_mutex);
+        {
+            lock_guard<mutex> lock(cout_mutex);
+            current_philosopher = (current_philosopher + 1) % NUM_PHILOSOPHERS;
+            cv.notify_all();
+        }
 
-        pthread_mutex_lock(&cout_mutex);
-        cout << "Philosopher " << id << " is thinking." << endl;
-        pthread_mutex_unlock(&cout_mutex);
+        {
+            lock_guard<mutex> lock(cout_mutex);
+            cout << "Philosopher " << id << " is thinking." << endl;
+        }
 
         think(id);
 
+       
         if (id % 2 == 0) {
             forks[left].acquire();
             forks[right].acquire();
@@ -90,19 +89,21 @@ void* philosopher(void* arg) {
             forks[left].acquire();
         }
 
-        pthread_mutex_lock(&cout_mutex);
-        cout << "Philosopher " << id << " is eating." << endl;
-        pthread_mutex_unlock(&cout_mutex);
+        {
+            lock_guard<mutex> lock(cout_mutex);
+            cout << "Philosopher " << id << " is eating." << endl;
+        }
 
-        eat(id);
+        eat(id); 
 
         forks[left].release();
         forks[right].release();
     }
 
-    pthread_mutex_lock(&cout_mutex);
-    cout << "Philosopher " << id << " has exited." << endl;
-    pthread_mutex_unlock(&cout_mutex);
+    {
+        lock_guard<mutex> lock(cout_mutex);
+        cout << "Philosopher " << id << " has exited." << endl;
+    }
 
     --active_users;
     return nullptr;
