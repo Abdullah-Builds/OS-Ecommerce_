@@ -55,7 +55,6 @@ OS-Ecommerce/
     ├── Initialize_Inventory_db.cpp
     ├── User_Initializer_db.cpp
 
-
 ## Building and Running
 
 1. Compile the project:
@@ -66,15 +65,22 @@ OS-Ecommerce/
    ```bash
    ./app
    ```
+
 ## SQLite3 Setup
- ```bash
+
+```bash
     sudo apt update
     sudo apt install sqlite3
-  ```
+    sudo apt install sqlite3 libsqlite3-dev
+
+```
+
 ## GUI Tool: DB Browser for SQLite
+
 ```bash
    sqlitebrowser
-   ```
+```
+
 Open/Create a Database : Use “Open Database” to open an existing .db file
 
 Create Tables : Go to the "Database Structure" tab and click “Create Table” to define the schema
