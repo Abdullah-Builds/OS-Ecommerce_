@@ -108,3 +108,6 @@ sqlitebrowser
 * SQLite3 for persistent database storage
 * Deadlock prevention using classic concurrency techniques
 * Thread-safe user authentication and order processing
+
+#project walkthrough video link
+ https://drive.google.com/file/d/1XSAS6u5qxOidWp1gwu0_NPc53Rulq5FP/view?usp=drivesdk
